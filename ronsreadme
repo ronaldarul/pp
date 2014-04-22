@@ -1,6 +1,13 @@
+second version..
 after installing github i noticed the following directory c:\users\Dalton\github
 
 Now in a command prompt i created a directory myrepo and then as per instruction created a file by saying touch ..created ronsreadme file..
+
+Looks like i added all files from myrepo directory to pp.git in github..
+
+Windows PowerShell
+Copyright (C) 2009 Microsoft Corporation. All rights reserved.
+
 C:\Users\Dalton\Documents\GitHub> mkdir myrepo
 
 
@@ -17,5 +24,139 @@ C:\Users\Dalton\Documents\GitHub\myrepo> git init
 Initialized empty Git repository in C:/Users/Dalton/Documents/GitHub/myrepo/.git
 /
 C:\Users\Dalton\Documents\GitHub\myrepo [master]> touch ronsreadme
-C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0 !]>
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0 !]> git add ronsreadme
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git commit -m 'first
+commit'
 
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'Dalton@Ron-HP.(none)')
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config --global r
+onaldarul@yahoo.com
+error: invalid key: ronaldarul@yahoo.com
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config -glbal use
+r.email ronaldarul@yahoo.com
+error: unknown switch `g'
+usage: git config [options]
+
+Config file location
+    --global              use global config file
+    --system              use system config file
+    --local               use repository config file
+    -f, --file <file>     use given config file
+    --blob <blob-id>      read config from given blob object
+
+Action
+    --get                 get value: name [value-regex]
+    --get-all             get all values: key [value-regex]
+    --get-regexp          get values for regexp: name-regex [value-regex]
+    --replace-all         replace all matching variables: name value [value_rege
+x]
+    --add                 add a new variable: name value
+    --unset               remove a variable: name [value-regex]
+    --unset-all           remove all matches: name [value-regex]
+    --rename-section      rename section: old-name new-name
+    --remove-section      remove a section: name
+    -l, --list            list all
+    -e, --edit            open an editor
+    --get-color <slot>    find the color configured: [default]
+    --get-colorbool <slot>
+                          find the color setting: [stdout-is-tty]
+
+Type
+    --bool                value is "true" or "false"
+    --int                 value is decimal number
+    --bool-or-int         value is --bool or --int
+    --path                value is a path (file or directory name)
+
+Other
+    -z, --null            terminate values with NUL byte
+    --includes            respect include directives on lookup
+
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config -global us
+er.email ronaldarul@yahoo.com
+error: did you mean `--global` (with two dashes ?)
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> yes
+The term 'yes' is not recognized as the name of a cmdlet, function, script file
+, or operable program. Check the spelling of the name, or if a path was include
+d, verify that the path is correct and try again.
+At line:1 char:4
++ yes <<<<
+    + CategoryInfo          : ObjectNotFound: (yes:String) [], CommandNotFound
+   Exception
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config --global u
+ser.email ronaldarul@yahoo.com
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config --global u
+ser.name ronaldarul
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git commit -m 'first
+commit'
+[master (root-commit) b83d596] first commit
+ 1 file changed, 21 insertions(+)
+ create mode 100644 ronsreadme
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git remote add origin https://
+github.com/ronaldarul/pp.git
+fatal: remote origin already exists.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push origin master
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git remote add myrepo https://
+github.com/ronaldarul/pp.git
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo master
+remote: Invalid username or password.
+fatal: Authentication failed for 'https://github.com/ronaldarul/pp.git/'
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git config --global user.passw
+ord ronjan8213
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo master
+Username for 'https://github.com': ronaldarul
+Password for 'https://ronaldarul@github.com':
+To https://github.com/ronaldarul/pp.git
+ ! [rejected]        master -> master (fetch first)
+error: failed to push some refs to 'https://github.com/ronaldarul/pp.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git pull
+fatal: No remote repository specified.  Please, specify either a URL or a
+remote name from which new revisions should be fetched.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git pull myrepo master
+warning: no common commits
+remote: Counting objects: 3, done.
+remote: Total 3 (delta 0), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From https://github.com/ronaldarul/pp
+ * branch            master     -> FETCH_HEAD
+ * [new branch]      master     -> myrepo/master
+Merge made by the 'recursive' strategy.
+ README.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+ create mode 100644 README.md
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push master
+fatal: The current branch master has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream master master
+
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo master
+Counting objects: 6, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (5/5), 843 bytes | 0 bytes/s, done.
+Total 5 (delta 0), reused 0 (delta 0)
+To https://github.com/ronaldarul/pp.git
+   134f4df..0e79086  master -> master
+C:\Users\Dalton\Documents\GitHub\myrepo [master]>
