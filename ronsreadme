@@ -1,0 +1,21 @@
+after installing github i noticed the following directory c:\users\Dalton\github
+
+Now in a command prompt i created a directory myrepo and then as per instruction created a file by saying touch ..created ronsreadme file..
+C:\Users\Dalton\Documents\GitHub> mkdir myrepo
+
+
+    Directory: C:\Users\Dalton\Documents\GitHub
+
+
+Mode                LastWriteTime     Length Name
+----                -------------     ------ ----
+d----         4/21/2014   9:42 PM            myrepo
+
+
+C:\Users\Dalton\Documents\GitHub> cd myrepo
+C:\Users\Dalton\Documents\GitHub\myrepo> git init
+Initialized empty Git repository in C:/Users/Dalton/Documents/GitHub/myrepo/.git
+/
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> touch ronsreadme
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0 !]>
+
