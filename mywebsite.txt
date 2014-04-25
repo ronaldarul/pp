@@ -1,0 +1,612 @@
+March 21:
+
+downloaded tomcat from http://www.updatestar.com/directdownload/apache-tomcat-remove-only/2103322
+installed with shut down port 8005 
+http 1.1 port 8080
+ajp 1.3 connector port 8009
+windows service name Tomcat7
+admin login : ronaldarul/ronjan82
+destination folder C:\Program Files\Apache Software Foundation\Tomcat 7.0
+java jre used is : C:\Program Files\Java\jre7
+
+March 22 :
+In windows 7 when i searched for tomcat i got Monitor Tomcat tool and clicked on it it had options to start and stop server...also noticed a tray in windows tray ...
+so just verify if it is up and running and now after starting it...(mine is a windows serviec so the server is started when i reboot the machine..)
+So simply if you type the url http://localhost:8080 it will bring tomcat home page which is basically some files in docs folder...
+To deploy new application all you have to do is just drop your war file or exploded format files into webapps
+
+I just copied an existing directory from examples and named that as ronexamples so what happens is the directory name becomnes the context path..
+so when i say http://localhost:8080/ronexamples/ the defailt page showed up as well..
+
+Now you have a full fledged web app deployed in your own context..go ahead and change a servlet and do whatever you want...
+
+Well we need to configure a database..go for mysql...search google for MySQL on Windows (Installer & Tools)  where installer is available instead of just downloading zip file...
+after downloading mysql installer..click on it ...i chose developer installation...(installs all ..server, notifier, docs, and examples )
+While installing ..chose the default config type "Development Machine" and tcp/ip port 3307
+Root password ronjan82
+and added a user with following username/password 
+ronaldarul/ronjan82
+
+WIndows service name : MySQL56  (noting down with case sensitivity..just to be sure..) 
+
+after you are done you will see My Sql 5.6 Command Line Client on your star menu..(you also have mysql workbench installed..you may have some gui client like oralce sql developer..it is but i do not know where and how to use it..)you can enter password you set up while installing.... (the user you set up whil installing ) 
+
+>create database rondb
+now use it ...
+>use rondb
+now create tables..
+OOOOOOOOOOOOOOOHOOOOOOOOOOOO.....
+ create table rondb.rontesttable (username varchar(10));
+IT was executed successfdully....Awesome...
+
+mysql> insert into rontesttable values('ron');
+Query OK, 1 row affected (0.06 sec)
+
+Now trying to configure by looking at the doc at http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html
+Added this to context.xml
+<Resource name="jdbc/ronsqldb" auth="Container" type="javax.sql.DataSource"
+               maxActive="100" maxIdle="30" maxWait="10000"
+               username="ronaldarul" password="ronjan82" driverClassName="com.mysql.jdbc.Driver"
+               url="jdbc:mysql://localhost:3306/rondb"/>
+          
+          Our port was 3037 need to check..??
+     context.xml was not able to be updated....finally gave permission to myself by giving full permission to ROn HP users..also stopped the service via windows task manager so that I could edit that file..
+ Added the following in web.xml..(note they have given a complete web.xml the beinging is different..but let us give it a try by just adding this one...
+ 
+   <resource-ref>
+       <description>DB Connection</description>
+       <res-ref-name>jdbc/ronsqldb</res-ref-name>
+       <res-type>javax.sql.DataSource</res-type>
+       <res-auth>Container</res-auth>
+   </resource-ref>
+
+   
+ ONe thing you should notice is there is only one context.xml and only one web.xml for all webapplications under webapps...
+
+Also copied the following jsp 
+
+	
+	
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<sql:query var="rs" dataSource="jdbc/ronsqldb">
+select username from rontesttable
+</sql:query>
+<html>
+  <head>
+    <title>DB Test</title>  </head>  <body>  <h2>Results</h2>
+<c:forEach var="row" items="${rs.rows}">    Foo ${row.username}<br/>    
+</c:forEach>
+  </body>
+</html>
+
+kept this jsp as testdb.jsp under stlouis app(that is under stlouis directory under jsp directory)
+
+This jsp uses some taglibs whicha are available at jstl.jar and standard.jar these jars were already available under the examples directory so since we copied one ofthe 
+examples folder and renamed it as stlouis those jars were available for us too...
+
+http://localhost:8080/stlouis/jsp/testdb.jsp
+
+When accesing this , i got the driver not found to connect to the databse...
+
+Downloaded mysql connector J and there was a jar file ...copied it to stlouis/web-inf/lib folder...
+
+tried again but did not work...need to check if the driver class specified in the context.xml indeed is available in that jar ...
+to see the jar..downloaded winzip...will continue next time... 
+
+March 25 :
+---------
+
+When i tried to access i did not see the class not found issue...could be the restart helped the class not found issue...
+now i saw access denied for user ronaldarul (using password : YES)
+Created user by first issuing the command use rondb and then executing the following command..
+mysql> create user 'ronaldarul'@'localhost' identified by 'ronjan82'
+    -> ;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> grant all privileges on rondb.rontestable to 'ronaldarul'@'localhost'
+    -> ;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'ronaldarul'@'%'
+    -> ;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+
+May be we need to bounce ...
+
+After 4 hrs of fight, here is the jsp that would set datasource...Store it under stlouis/jsp and delete the one under catalina/work/../../  It is better to save with new name everytime...
+use this link to access http://127.0.0.1:8080/stlouis/jsp/testds11.jsp
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
+<html>
+<head>
+<title>JSTL sql:setDataSource Tag</title>
+</head>
+<body>
+ 
+<sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
+     url="jdbc:mysql://localhost:3307/mysql"
+     user="javauser"  password="javadude"/>
+
+<sql:query dataSource="${snapshot}" sql="select user from user" var="rs" />
+
+<c:forEach var="row" items="${rs.rows}">
+    user: ${row.user}<br/>    
+</c:forEach>
+ 
+</body>
+</html>
+
+THe issue was i had a wrong port number 3306 instead of 3307..
+
+Now having pulled some data from mysql database to the browser...you can configure a bit more ..to use a connection or whatsoever...
+
+Next class would be to set up some tables and configure hibernate...
+
+
+March 26:
+
+Trying to bring up tomcat using command prompt..so that you can bring up and down..
+
+Go to 
+C:\Program Files\Apache Software Foundation\Tomcat 7.0>
+set Path=C:\Program Files\Java\jdk1.7.0_02\bin
+set CLASSPATH=%CLASSPATH%;C:\Program Files\Apache Software Foundation\Tomcat 7.0\bin;C:\Program Files\Apache Software Foundation\Tomcat 7.0\bin\bootstrap.jar;C:\Program Files\Apache Software Foundation\Tomcat 7.0\bin\tomcat-juli.jar
+java org.apache.catalina.startup.Bootstrap
+
+Getting the following error..(before you got some bind error..make sure you have the tom server shut down ...)
+
+
+April 2:
+
+There was some error because the logs directory did not have enough rights...windows 7 stupid security system did not show me wheter the read only attribute was removed or not..it kept showing read only ...anyway after a long time i started the server ..it was fine..just set the classpath and path as said above and use java ..bootstrap..same as above..
+Accessed this page  http://127.0.0.1:8080/stlouis/jsp/testds11.jsp and it was okay..
+Now closed the tomcat command prompt and tried to access the page ..it did notwork..
+so started tomcat again and now it worked..OHooooooooooooooooooooooo tomcat start up and shut down via the command prompt is successful...
+
+Next try to put those commands in a ms dos file and keep a short cut key for the cmd file...and also try spring first ....
+
+April 8
+
+
+we havd downloaded all spring jar files and they are under C:\Users\Dalton\mywebsite\spring_downloaded
+
+Added a servlet to web.xml (the only one web.xml under webapps directory and wrote teh servlet the source file is under c:\users\dalton\src\ron\raj\servlets\RonServlet.java..
+
+trying to compile the class but it is failing to get javax.xx stuff..
+add servlet-api.jar from tomcat7.0 folder  and then go to src folder and try javac.. also fist step you should have added the path and classpath as above..
+
+set CLASSPATH=%CLASSPATH%;C:\Program Files\Apache Software Foundation\Tomcat 7.0\lib\servlet-api.jar
+
+now servlet compiled ..now copy the classes under src folder to classes folder..
+
+add classes to the classpath of your server start up cmd..
+
+set CLASSPATH=%CLASSPATH%;C:\Users\Dalton\mywebsite\classes (see the final one below..)
+
+Finally here is the classpath
+Go to 
+cd C:\Program Files\Apache Software Foundation\Tomcat 7.0
+set CLASSPATH=%CLASSPATH%;C:\Program Files\Apache Software Foundation\Tomcat 7.0\bin;C:\Program Files\Apache Software Foundation\Tomcat 7.0\bin\bootstrap.jar;C:\Program Files\Apache Software Foundation\Tomcat 7.0\bin\tomcat-juli.jar;C:\Program Files\Java\jre7\lib\rt.jar;C:\Users\Dalton\mywebsite\classes
+java org.apache.catalina.startup.Bootstrap
+
+the serlvet registration load on start up had some issues removed it..
+
+when you try to access now using  good news it tries to load the servlet but fails with class not found 
+java.lang.NoClassDefFoundError: javax/servlet/http/HttpServlet
+
+Try adding servlet-api.jar to your server cmd window..
+
+
+
+April 21 : Git hub
+------------------
+after installing github i noticed the following directory c:\users\Dalton\doucments\github (if you go to this directory directly using cmd prompt nothing will work..look for Git Shell and click on it then it will bring up thisdirector in cmd prompt...
+
+Now in a command prompt i created a directory myrepo and then as per instruction created a file by saying touch ..created ronsreadme file..
+
+Looks like i added all files from myrepo directory to pp.git in github..
+
+Windows PowerShell
+Copyright (C) 2009 Microsoft Corporation. All rights reserved.
+
+C:\Users\Dalton\Documents\GitHub> mkdir myrepo
+
+
+    Directory: C:\Users\Dalton\Documents\GitHub
+
+
+Mode                LastWriteTime     Length Name
+----                -------------     ------ ----
+d----         4/21/2014   9:42 PM            myrepo
+
+
+C:\Users\Dalton\Documents\GitHub> cd myrepo
+C:\Users\Dalton\Documents\GitHub\myrepo> git init
+Initialized empty Git repository in C:/Users/Dalton/Documents/GitHub/myrepo/.git
+/
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> touch ronsreadme
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0 !]> git add ronsreadme
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git commit -m 'first
+commit'
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'Dalton@Ron-HP.(none)')
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config --global r
+onaldarul@yahoo.com
+error: invalid key: ronaldarul@yahoo.com
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config -glbal use
+r.email ronaldarul@yahoo.com
+error: unknown switch `g'
+usage: git config [options]
+
+Config file location
+    --global              use global config file
+    --system              use system config file
+    --local               use repository config file
+    -f, --file <file>     use given config file
+    --blob <blob-id>      read config from given blob object
+
+Action
+    --get                 get value: name [value-regex]
+    --get-all             get all values: key [value-regex]
+    --get-regexp          get values for regexp: name-regex [value-regex]
+    --replace-all         replace all matching variables: name value [value_rege
+x]
+    --add                 add a new variable: name value
+    --unset               remove a variable: name [value-regex]
+    --unset-all           remove all matches: name [value-regex]
+    --rename-section      rename section: old-name new-name
+    --remove-section      remove a section: name
+    -l, --list            list all
+    -e, --edit            open an editor
+    --get-color <slot>    find the color configured: [default]
+    --get-colorbool <slot>
+                          find the color setting: [stdout-is-tty]
+
+Type
+    --bool                value is "true" or "false"
+    --int                 value is decimal number
+    --bool-or-int         value is --bool or --int
+    --path                value is a path (file or directory name)
+
+Other
+    -z, --null            terminate values with NUL byte
+    --includes            respect include directives on lookup
+
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config -global us
+er.email ronaldarul@yahoo.com
+error: did you mean `--global` (with two dashes ?)
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> yes
+The term 'yes' is not recognized as the name of a cmdlet, function, script file
+, or operable program. Check the spelling of the name, or if a path was include
+d, verify that the path is correct and try again.
+At line:1 char:4
++ yes <<<<
+    + CategoryInfo          : ObjectNotFound: (yes:String) [], CommandNotFound
+   Exception
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config --global u
+ser.email ronaldarul@yahoo.com
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git config --global u
+ser.name ronaldarul
+C:\Users\Dalton\Documents\GitHub\myrepo [master +1 ~0 -0]> git commit -m 'first
+commit'
+[master (root-commit) b83d596] first commit
+ 1 file changed, 21 insertions(+)
+ create mode 100644 ronsreadme
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git remote add origin https://
+github.com/ronaldarul/pp.git
+fatal: remote origin already exists.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push origin master
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git remote add myrepo https://
+github.com/ronaldarul/pp.git
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo master
+remote: Invalid username or password.
+fatal: Authentication failed for 'https://github.com/ronaldarul/pp.git/'
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git config --global user.passw
+ord ronjan8213
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo master
+Username for 'https://github.com': ronaldarul
+Password for 'https://ronaldarul@github.com':
+To https://github.com/ronaldarul/pp.git
+ ! [rejected]        master -> master (fetch first)
+error: failed to push some refs to 'https://github.com/ronaldarul/pp.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git pull
+fatal: No remote repository specified.  Please, specify either a URL or a
+remote name from which new revisions should be fetched.
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git pull myrepo master
+warning: no common commits
+remote: Counting objects: 3, done.
+remote: Total 3 (delta 0), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From https://github.com/ronaldarul/pp
+ * branch            master     -> FETCH_HEAD
+ * [new branch]      master     -> myrepo/master
+Merge made by the 'recursive' strategy.
+ README.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+ create mode 100644 README.md
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push master
+fatal: The current branch master has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream master master
+
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo master
+Counting objects: 6, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (5/5), 843 bytes | 0 bytes/s, done.
+Total 5 (delta 0), reused 0 (delta 0)
+To https://github.com/ronaldarul/pp.git
+   134f4df..0e79086  master -> master
+C:\Users\Dalton\Documents\GitHub\myrepo [master]>
+
+
+
+AND SECOND TIME I UPDATED THE SAME FILE USING FOLLOWING COMMANDS..
+C:\Users\Dalton\Documents\GitHub\myrepo [master +0 ~1 -0]> git add ronsreadme
+C:\Users\Dalton\Documents\GitHub\myrepo [master +0 ~1 -0]> git commit
+Aborting commit due to empty commit message.
+C:\Users\Dalton\Documents\GitHub\myrepo [master +0 ~1 -0]> git commit second com
+mit
+error: pathspec 'second' did not match any file(s) known to git.
+error: pathspec 'commit' did not match any file(s) known to git.
+C:\Users\Dalton\Documents\GitHub\myrepo [master +0 ~1 -0]> git commit secondcomm
+it
+error: pathspec 'secondcommit' did not match any file(s) known to git.
+C:\Users\Dalton\Documents\GitHub\myrepo [master +0 ~1 -0]> git commit
+Aborting commit due to empty commit message.
+C:\Users\Dalton\Documents\GitHub\myrepo [master +0 ~1 -0]> git commit -m 'second
+ commit'
+[master cb2c743] second commit
+ 1 file changed, 142 insertions(+), 1 deletion(-)
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo
+fatal: The current branch master has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream myrepo master
+
+C:\Users\Dalton\Documents\GitHub\myrepo [master]> git push myrepo master
+Counting objects: 5, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 2.59 KiB | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To https://github.com/ronaldarul/pp.git
+   0e79086..cb2c743  master -> master
+C:\Users\Dalton\Documents\GitHub\myrepo [master]>
+
+
+Now i logged into github account (ronaldarul/ronjan8213) and verified the content of ronsreadme
+Also created a file tomcat_start in your local ..it is a command prompt file ..note at the end you have cmd /k so that it will not close automatically..
+now you set the path and classpath and add command to bring up tomcat server and add this file to git..
+
+
+April 24
+--------
+
+I could not add a file under c:\temp it looks like we need to keep files under c:\users\Dalton\documents\GitHub\myrepo which is a git repository...
+
+Having said that now let us try maven...before setting up the command prompt to bring up server..
+
+ok downloaded maven and unziped it. Had issues while unzipping using winzip 9 ...used tools->'unzip and try' icon on win zip 9 and it unzipped.
+the unzipped files/folders are under C:\Program Files\Apache Software Foundation
+
+
+set M2_Home env variable as specified in the installation instruction.. M2_Home C:\Program Files\Apache Software Foundation\apache-maven-3.2.1
+
+set M2 environment variable in the user variables with the value %M2_HOME%\bin
+
+
+
+
+tips : WinKey + Pause key will bring your environment variables system properties.
+       WinKey + R will run the small window where you can type in cmd to bring command prompt.
+
+followed the instruction and verified maven was set up correctly.
+note path had to be set as a user variable...not as a system variable...
+C:\Users\Dalton>mvn --version
+Apache Maven 3.2.1 (ea8b2b07643dbb1b84b6d16e1f08391b666bc1e9; 2014-02-14T11:37:52-06:00)
+Maven home: C:\Program Files\Apache Software Foundation\apache-maven-3.2.1
+Java version: 1.7.0_02, vendor: Oracle Corporation
+Java home: C:\Program Files\Java\jdk1.7.0_02\jre
+Default locale: en_US, platform encoding: Cp1252
+OS name: "windows 7", version: "6.1", arch: "amd64", family: "windows"
+C:\Users\Dalton>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SOme example tables
+
+
+mysql> use rondb
+Database changed
+mysql> CREATE TABLE APPLICANT
+    -> (
+    -> ID int NOT NULL AUTO_INCREMENT,
+    -> LastName varchar(100) NOT NULL,
+    -> FirstName varchar(100),
+    -> StreetAddress varchar(255),
+    -> City varchar(255),
+    -> State varchar(100),
+    -> Country varchar(100),
+    -> PRIMARY KEY (ID)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE RECRUITING_COMPANY
+    -> (
+    -> ID int NOT NULL AUTO_INCREMENT,
+    -> Name varchar(100) NOT NULL,
+    -> StreetAddress varchar(255),
+    -> City varchar(255),
+    -> State varchar(100),
+    -> Country varchar(100),
+    -> PRIMARY KEY (ID)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+
+mysql>  CREATE TABLE RECRUITER
+    ->  (
+    ->  ID int NOT NULL AUTO_INCREMENT,
+    ->  LastName varchar(100) NOT NULL,
+    ->  FirstName varchar(100),
+    ->  StreetAddress varchar(255),
+    ->  City varchar(255),
+    ->  State varchar(100),
+    ->  Country varchar(100),
+    ->  IndependentRecruiter TINYINT(1),
+    ->  CompanyId int,
+    ->  PRIMARY KEY (ID),
+    ->  FOREIGN KEY(CompanyId)
+    ->  REFERENCES RECRUITING_COMPANY(ID)
+    ->
+    ->  );
+Query OK, 0 rows affected (0.13 sec)
+
+mysql>  CREATE TABLE STANDARD_SKILLS
+    ->  (
+    ->  ID int NOT NULL AUTO_INCREMENT,
+    ->  Name varchar(200) NOT NULL,
+    ->  PRIMARY KEY (ID)
+    ->  );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql>  CREATE TABLE OTHER_SKILLS
+    ->  (
+    ->  ID int NOT NULL AUTO_INCREMENT,
+    ->  Name varchar(200) NOT NULL,
+    ->  PRIMARY KEY (ID)
+    ->  );
+Query OK, 0 rows affected (0.07 sec)
+
+
+
+
+
+
+
+
+
+
+
